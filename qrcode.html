@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de QR Code</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F5F5F5;
+            color: #1A1A1A;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .container {
+            background: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 480px;
+            padding: 40px 32px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #666666;
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .input-group input {
+            flex: 1;
+            height: 48px;
+            padding: 0 14px;
+            font-size: 14px;
+            color: #1A1A1A;
+            border: 1.5px solid #E0E0E0;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus {
+            border-color: #000000;
+        }
+
+        .input-group button {
+            height: 48px;
+            padding: 0 20px;
+            background: #000000;
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background-color 0.2s;
+        }
+
+        .input-group button:hover {
+            background: #333333;
+        }
+
+        #qrcode-container {
+            display: none;
+            margin: 24px auto;
+            padding: 24px;
+            background: #FFFFFF;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        #qrcode-container.visible {
+            display: inline-block;
+        }
+
+        #qrcode-container canvas {
+            display: block;
+        }
+
+        .btn-download {
+            display: none;
+            margin: 16px auto 0;
+            height: 44px;
+            padding: 0 24px;
+            background: #FFFFFF;
+            color: #000000;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1.5px solid #000000;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-download.visible {
+            display: inline-block;
+        }
+
+        .btn-download:hover {
+            background: #F5F5F5;
+        }
+
+        .url-display {
+            display: none;
+            margin-top: 16px;
+            font-size: 12px;
+            color: #999999;
+            word-break: break-all;
+        }
+
+        .url-display.visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gerador de QR Code</h1>
+        <p class="subtitle">Cole a URL do formulário hospedado para gerar o QR code pronto para impressão.</p>
+
+        <div class="input-group">
+            <input type="url" id="urlInput" placeholder="https://seu-site.com/formulario">
+            <button onclick="generateQR()">Gerar</button>
+        </div>
+
+        <div id="qrcode-container">
+            <canvas id="qrCanvas"></canvas>
+        </div>
+
+        <button class="btn-download" id="btnDownload" onclick="downloadQR()">⬇ Baixar PNG</button>
+
+        <div class="url-display" id="urlDisplay"></div>
+    </div>
+
+    <!-- QR code library (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+    <script>
+        function generateQR() {
+            const url = document.getElementById('urlInput').value.trim();
+            if (!url) {
+                alert('Por favor, insira uma URL.');
+                return;
+            }
+
+            const canvas = document.getElementById('qrCanvas');
+
+            QRCode.toCanvas(canvas, url, {
+                width: 300,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                }
+            }, function (error) {
+                if (error) {
+                    console.error(error);
+                    alert('Erro ao gerar QR code. Verifique a URL.');
+                    return;
+                }
+
+                document.getElementById('qrcode-container').classList.add('visible');
+                document.getElementById('btnDownload').classList.add('visible');
+                document.getElementById('urlDisplay').classList.add('visible');
+                document.getElementById('urlDisplay').textContent = url;
+            });
+        }
+
+        function downloadQR() {
+            const canvas = document.getElementById('qrCanvas');
+            const link = document.createElement('a');
+            link.download = 'qrcode-cadastro-medicos.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Enter key triggers generation
+        document.getElementById('urlInput').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') generateQR();
+        });
+    </script>
+</body>
+</html>

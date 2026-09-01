@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Médicos</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F5F5F5;
+            color: #1A1A1A;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .container {
+            background: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 480px;
+            padding: 40px 32px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #666666;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 6px;
+        }
+
+        .form-group label .required {
+            color: #D00000;
+            margin-left: 2px;
+        }
+
+        .form-group select,
+        .form-group input[type="text"] {
+            width: 100%;
+            height: 48px;
+            padding: 0 14px;
+            font-size: 16px;
+            color: #1A1A1A;
+            background: #FFFFFF;
+            border: 1.5px solid #E0E0E0;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s ease;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .form-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23666' d='M1.41 0L6 4.58 10.59 0 12 1.41l-6 6-6-6z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
+            cursor: pointer;
+        }
+
+        .form-group select:focus,
+        .form-group input[type="text"]:focus {
+            border-color: #000000;
+        }
+
+        .form-group select:invalid {
+            color: #999999;
+        }
+
+        .form-group .hint {
+            font-size: 12px;
+            color: #999999;
+            margin-top: 4px;
+        }
+
+        .form-group .error-msg {
+            font-size: 12px;
+            color: #D00000;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .form-group.error select,
+        .form-group.error input[type="text"] {
+            border-color: #D00000;
+        }
+
+        .form-group.error .error-msg {
+            display: block;
+        }
+
+        /* Checkbox LGPD */
+        .lgpd-group {
+            margin-bottom: 24px;
+            margin-top: 24px;
+        }
+
+        .lgpd-group label {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 400;
+            color: #444444;
+            line-height: 1.5;
+        }
+
+        .lgpd-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            margin-top: 2px;
+            accent-color: #000000;
+            cursor: pointer;
+        }
+
+        .lgpd-group .error-msg {
+            font-size: 12px;
+            color: #D00000;
+            margin-top: 6px;
+            margin-left: 32px;
+            display: none;
+        }
+
+        .lgpd-group.error .error-msg {
+            display: block;
+        }
+
+        /* Submit button */
+        .btn-submit {
+            width: 100%;
+            height: 52px;
+            background: #000000;
+            color: #FFFFFF;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .btn-submit:hover {
+            background: #333333;
+        }
+
+        .btn-submit:active {
+            background: #000000;
+            transform: scale(0.98);
+        }
+
+        .btn-submit:disabled {
+            background: #CCCCCC;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Success screen */
+        .success-screen {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .success-screen .icon {
+            width: 72px;
+            height: 72px;
+            background: #000000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+
+        .success-screen .icon svg {
+            width: 36px;
+            height: 36px;
+        }
+
+        .success-screen h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 12px;
+        }
+
+        .success-screen p {
+            font-size: 15px;
+            color: #666666;
+            line-height: 1.6;
+        }
+
+        /* Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #FFFFFF;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: #F0F0F0;
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Form -->
+        <div id="formSection">
+            <div class="header">
+                <h1>Cadastro de Médicos</h1>
+                <p>Registre seu interesse em receber visitas de nossos representantes médicos.</p>
+            </div>
+
+            <form id="registrationForm" novalidate>
+                <!-- UF -->
+                <div class="form-group" id="ufGroup">
+                    <label for="uf">Estado (UF)<span class="required">*</span></label>
+                    <select id="uf" name="uf" required>
+                        <option value="" disabled selected>Selecione seu estado</option>
+                        <option value="AC">Acre (AC)</option>
+                        <option value="AL">Alagoas (AL)</option>
+                        <option value="AP">Amapá (AP)</option>
+                        <option value="AM">Amazonas (AM)</option>
+                        <option value="BA">Bahia (BA)</option>
+                        <option value="CE">Ceará (CE)</option>
+                        <option value="DF">Distrito Federal (DF)</option>
+                        <option value="ES">Espírito Santo (ES)</option>
+                        <option value="GO">Goiás (GO)</option>
+                        <option value="MA">Maranhão (MA)</option>
+                        <option value="MT">Mato Grosso (MT)</option>
+                        <option value="MS">Mato Grosso do Sul (MS)</option>
+                        <option value="MG">Minas Gerais (MG)</option>
+                        <option value="PA">Pará (PA)</option>
+                        <option value="PB">Paraíba (PB)</option>
+                        <option value="PR">Paraná (PR)</option>
+                        <option value="PE">Pernambuco (PE)</option>
+                        <option value="PI">Piauí (PI)</option>
+                        <option value="RJ">Rio de Janeiro (RJ)</option>
+                        <option value="RN">Rio Grande do Norte (RN)</option>
+                        <option value="RS">Rio Grande do Sul (RS)</option>
+                        <option value="RO">Rondônia (RO)</option>
+                        <option value="RR">Roraima (RR)</option>
+                        <option value="SC">Santa Catarina (SC)</option>
+                        <option value="SP">São Paulo (SP)</option>
+                        <option value="SE">Sergipe (SE)</option>
+                        <option value="TO">Tocantins (TO)</option>
+                    </select>
+                    <div class="error-msg">Selecione o estado do seu CRM.</div>
+                </div>
+
+                <!-- CRM -->
+                <div class="form-group" id="crmGroup">
+                    <label for="crm">CRM<span class="required">*</span></label>
+                    <input type="text" id="crm" name="crm" placeholder="Ex: 123456" inputmode="numeric" required>
+                    <div class="error-msg">Informe um número de CRM válido.</div>
+                </div>
+
+                <!-- Contato -->
+                <div class="form-group" id="contatoGroup">
+                    <label for="contato">Contato (e-mail ou celular)<span class="required">*</span></label>
+                    <input type="text" id="contato" name="contato" placeholder="seu@email.com ou (11) 99999-9999" required>
+                    <div class="hint">Digite seu e-mail ou número de celular com DDD.</div>
+                    <div class="error-msg">Informe um e-mail ou celular válido.</div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- LGPD -->
+                <div class="lgpd-group" id="lgpdGroup">
+                    <label>
+                        <input type="checkbox" id="lgpd" name="lgpd" required>
+                        <span>Consinto com o uso dos meus dados para receber contato de representantes médicos, conforme a LGPD (Lei 13.709/2018).</span>
+                    </label>
+                    <div class="error-msg">É necessário aceitar o termo de consentimento para continuar.</div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="btnSubmit">Enviar cadastro</button>
+            </form>
+        </div>
+
+        <!-- Success screen -->
+        <div class="success-screen" id="successScreen">
+            <div class="icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+            <h2>Cadastro realizado!</h2>
+            <p>Obrigado pelo interesse. Em breve, um de nossos representantes entrará em contato com você.</p>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // CONFIGURAÇÃO: Cole aqui a URL do seu Google Apps Script
+        // Siga as instruções do README.md para obter esta URL
+        // ============================================================
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPs2k3YN5NJ8js6VnZbXji7lEvwVbeGcgid8B6JKvTbWBdlHAfTonF7w8WmhQb6nqS/exec';
+
+        // ============================================================
+        // Máscara de celular e detecção de tipo de contato
+        // ============================================================
+        const contatoInput = document.getElementById('contato');
+
+        contatoInput.addEventListener('input', function (e) {
+            const raw = this.value.replace(/\D/g, '');
+
+            // Se o primeiro caractere digitado é número, aplica máscara de celular
+            if (raw.length > 0 && /^\d/.test(this.value.replace(/[\s()-]/g, ''))) {
+                // Aplica máscara (XX) XXXXX-XXXX
+                let formatted = '';
+                if (raw.length <= 2) {
+                    formatted = `(${raw}`;
+                } else if (raw.length <= 7) {
+                    formatted = `(${raw.slice(0, 2)}) ${raw.slice(2)}`;
+                } else {
+                    formatted = `(${raw.slice(0, 2)}) ${raw.slice(2, 7)}-${raw.slice(7, 11)}`;
+                }
+                this.value = formatted;
+            }
+            // Se contém @, não aplica máscara (é e-mail)
+        });
+
+        // ============================================================
+        // Validação
+        // ============================================================
+        function isValidEmail(value) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+        }
+
+        function isValidPhone(value) {
+            const digits = value.replace(/\D/g, '');
+            return digits.length === 10 || digits.length === 11;
+        }
+
+        function isValidCRM(value) {
+            const trimmed = value.trim();
+            return trimmed.length > 0 && /^\d+$/.test(trimmed);
+        }
+
+        function getContactType(value) {
+            if (value.includes('@')) return 'email';
+            const digits = value.replace(/\D/g, '');
+            if (digits.length >= 10) return 'phone';
+            return 'unknown';
+        }
+
+        function validateField(groupId, isValid) {
+            const group = document.getElementById(groupId);
+            if (isValid) {
+                group.classList.remove('error');
+            } else {
+                group.classList.add('error');
+            }
+            return isValid;
+        }
+
+        // Remove error state on input
+        document.getElementById('uf').addEventListener('change', function () {
+            document.getElementById('ufGroup').classList.remove('error');
+        });
+
+        document.getElementById('crm').addEventListener('input', function () {
+            // Permite somente números
+            this.value = this.value.replace(/\D/g, '');
+            document.getElementById('crmGroup').classList.remove('error');
+        });
+
+        contatoInput.addEventListener('focus', function () {
+            document.getElementById('contatoGroup').classList.remove('error');
+        });
+
+        document.getElementById('lgpd').addEventListener('change', function () {
+            document.getElementById('lgpdGroup').classList.remove('error');
+        });
+
+        // ============================================================
+        // Envio do formulário
+        // ============================================================
+        document.getElementById('registrationForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const uf = document.getElementById('uf').value;
+            const crm = document.getElementById('crm').value.trim();
+            const contato = document.getElementById('contato').value.trim();
+            const lgpd = document.getElementById('lgpd').checked;
+
+            // Validação
+            let isFormValid = true;
+
+            isFormValid = validateField('ufGroup', uf !== '') & isFormValid;
+            isFormValid = validateField('crmGroup', isValidCRM(crm)) & isFormValid;
+
+            const contactType = getContactType(contato);
+            let isContactValid = false;
+            if (contactType === 'email') {
+                isContactValid = isValidEmail(contato);
+            } else if (contactType === 'phone') {
+                isContactValid = isValidPhone(contato);
+            }
+            isFormValid = validateField('contatoGroup', isContactValid) & isFormValid;
+
+            isFormValid = validateField('lgpdGroup', lgpd) & isFormValid;
+
+            if (!isFormValid) return;
+
+            // Desabilita botão e mostra spinner
+            const btn = document.getElementById('btnSubmit');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>';
+
+            try {
+                // Envia para Google Apps Script
+                const payload = {
+                    uf: uf,
+                    crm: crm,
+                    contato: contato,
+                    contatoTipo: contactType,
+                    lgpdConsentimento: 'Sim',
+                    dataHora: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
+                };
+
+                if (APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'COLE_SUA_URL_AQUI') {
+                    await fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                } else {
+                    // Modo de teste: simula envio
+                    console.log('⚠️ URL do Apps Script não configurada. Dados do formulário:', payload);
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+
+                // Mostra tela de sucesso
+                document.getElementById('formSection').style.display = 'none';
+                document.getElementById('successScreen').style.display = 'block';
+
+            } catch (error) {
+                console.error('Erro ao enviar:', error);
+                alert('Ocorreu um erro ao enviar o cadastro. Por favor, tente novamente.');
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        });
+    </script>
+</body>
+</html>
