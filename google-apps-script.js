@@ -2,10 +2,18 @@
 // Google Apps Script — Backend do Formulário de Cadastro de Médicos
 // ============================================================
 //
+// CABEÇALHOS DA PLANILHA GOOGLE SHEETS:
+// A1: Nome
+// B1: UF
+// C1: CRM
+// D1: Contato
+// E1: Tipo de Contato
+// F1: Consentimento LGPD
+// G1: Data/Hora
+//
 // INSTRUÇÕES DE ATUALIZAÇÃO:
 //
-// 1. Acesse sua planilha no Google Sheets:
-//    https://docs.google.com/spreadsheets/d/1e56Lh_JcaykkV_HmiRVWalZp8KlhTzPigFl4NaYoym4/edit
+// 1. Na sua planilha, adicione a coluna "Nome" na Coluna A.
 //
 // 2. Vá no menu: Extensões > Apps Script
 //
@@ -13,21 +21,16 @@
 //
 // 4. Clique no ícone de Salvar 💾 (Ctrl+S).
 //
-// 5. TESTE RÁPIDO (Opcional):
-//    Selecione a função "testarInsercaoNaPlanilha" na barra superior
-//    e clique em "Executar". Veja se uma linha de teste aparece na sua planilha.
-//
-// 6. IMPLANTAR NOVA VERSÃO:
+// 5. IMPLANTAR NOVA VERSÃO:
 //    - Clique em "Implantar" > "Gerenciar implantações"
 //    - Clique no ícone de lápis ✏️ (Editar)
-//    - Em "Versão", mude para "Nova versão"
-//    - Clique em "Implantar"
-//    (A URL continua a mesma!)
+//    - Em "Versão", selecione "Nova versão"
+//    - Clique em "Implantar" e depois em "Concluído"
+//    (A URL continuará a mesma!)
 // ============================================================
 
 /**
  * Trata requisições POST vindas do formulário.
- * Suporta tanto envio por formulário padrão (e.parameter) quanto JSON (e.postData).
  */
 function doPost(e) {
   try {
@@ -42,9 +45,7 @@ function doPost(e) {
     if ((!data.uf && !data.crm && !data.contato) && e && e.postData && e.postData.contents) {
       try {
         data = JSON.parse(e.postData.contents);
-      } catch (errJson) {
-        // Ignora se não for JSON válido
-      }
+      } catch (errJson) {}
     }
 
     // Abre a planilha ativa
@@ -53,14 +54,15 @@ function doPost(e) {
     // Data/hora atual se não informada
     var dataHoraFormatada = data.dataHora || Utilities.formatDate(new Date(), "America/Sao_Paulo", "dd/MM/yyyy HH:mm:ss");
 
-    // Adiciona uma nova linha com os dados
+    // Adiciona uma nova linha com os dados (Nome na Coluna A)
     sheet.appendRow([
-      data.uf || '',                                 // Coluna A: UF
-      data.crm || '',                                // Coluna B: CRM
-      data.contato || '',                            // Coluna C: Contato
-      data.contatoTipo || '',                        // Coluna D: Tipo (email ou celular)
-      data.lgpdConsentimento || 'Sim',               // Coluna E: Consentimento LGPD
-      dataHoraFormatada                              // Coluna F: Data/Hora
+      data.nome || '',                               // Coluna A: Nome
+      data.uf || '',                                 // Coluna B: UF
+      data.crm || '',                                // Coluna C: CRM
+      data.contato || '',                            // Coluna D: Contato
+      data.contatoTipo || '',                        // Coluna E: Tipo (email ou celular)
+      data.lgpdConsentimento || 'Sim',               // Coluna F: Consentimento LGPD
+      dataHoraFormatada                              // Coluna G: Data/Hora
     ]);
 
     // Retorna resposta de sucesso
@@ -89,12 +91,12 @@ function doGet(e) {
 }
 
 /**
- * Função de teste para executar diretamente no editor do Apps Script.
- * Clique em "Executar" para validar se a planilha recebe os dados.
+ * Função de teste rápido dentro do editor do Apps Script.
  */
 function testarInsercaoNaPlanilha() {
   var e = {
     parameter: {
+      nome: "Dr. João Silva",
       uf: "SP",
       crm: "123456",
       contato: "teste@gmail.com",
