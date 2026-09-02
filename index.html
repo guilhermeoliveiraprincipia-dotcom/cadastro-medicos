@@ -249,6 +249,9 @@
     </style>
 </head>
 <body>
+    <!-- iframe oculto para receber a resposta do Apps Script -->
+    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+
     <div class="container">
         <!-- Form -->
         <div id="formSection">
@@ -457,7 +460,7 @@
             btn.innerHTML = '<span class="spinner"></span>';
 
             try {
-                // Envia para Google Apps Script
+                // Envia para Google Apps Script via formulário oculto
                 const payload = {
                     uf: uf,
                     crm: crm,
@@ -468,12 +471,27 @@
                 };
 
                 if (APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'COLE_SUA_URL_AQUI') {
-                    await fetch(APPS_SCRIPT_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'text/plain' },
-                        body: JSON.stringify(payload)
-                    });
+                    // Cria formulário oculto que envia para o iframe
+                    const hiddenForm = document.createElement('form');
+                    hiddenForm.method = 'POST';
+                    hiddenForm.action = APPS_SCRIPT_URL;
+                    hiddenForm.target = 'hidden_iframe';
+                    hiddenForm.style.display = 'none';
+
+                    for (const [key, value] of Object.entries(payload)) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = key;
+                        input.value = value;
+                        hiddenForm.appendChild(input);
+                    }
+
+                    document.body.appendChild(hiddenForm);
+                    hiddenForm.submit();
+                    document.body.removeChild(hiddenForm);
+
+                    // Aguarda um momento para garantir o envio
+                    await new Promise(resolve => setTimeout(resolve, 1500));
                 } else {
                     // Modo de teste: simula envio
                     console.log('⚠️ URL do Apps Script não configurada. Dados do formulário:', payload);
