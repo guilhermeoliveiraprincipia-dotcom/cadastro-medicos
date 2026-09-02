@@ -261,6 +261,13 @@
             </div>
 
             <form id="registrationForm" novalidate>
+                <!-- Nome -->
+                <div class="form-group" id="nomeGroup">
+                    <label for="nome">Nome completo<span class="required">*</span></label>
+                    <input type="text" id="nome" name="nome" placeholder="Dr(a). Nome Sobrenome" required>
+                    <div class="error-msg">Por favor, informe seu nome completo.</div>
+                </div>
+
                 <!-- UF -->
                 <div class="form-group" id="ufGroup">
                     <label for="uf">Estado (UF)<span class="required">*</span></label>
@@ -405,6 +412,10 @@
         }
 
         // Remove error state on input
+        document.getElementById('nome').addEventListener('input', function () {
+            document.getElementById('nomeGroup').classList.remove('error');
+        });
+
         document.getElementById('uf').addEventListener('change', function () {
             document.getElementById('ufGroup').classList.remove('error');
         });
@@ -429,6 +440,7 @@
         document.getElementById('registrationForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
+            const nome = document.getElementById('nome').value.trim();
             const uf = document.getElementById('uf').value;
             const crm = document.getElementById('crm').value.trim();
             const contato = document.getElementById('contato').value.trim();
@@ -437,6 +449,7 @@
             // Validação
             let isFormValid = true;
 
+            isFormValid = validateField('nomeGroup', nome.length >= 2) & isFormValid;
             isFormValid = validateField('ufGroup', uf !== '') & isFormValid;
             isFormValid = validateField('crmGroup', isValidCRM(crm)) & isFormValid;
 
@@ -462,6 +475,7 @@
             try {
                 // Envia para Google Apps Script via formulário oculto
                 const payload = {
+                    nome: nome,
                     uf: uf,
                     crm: crm,
                     contato: contato,
